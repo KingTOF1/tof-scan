@@ -1,0 +1,222 @@
+# tof-scan
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06152e">
+<title>TOF SCAN</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;color:#eff8ff;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ background:radial-gradient(ellipse at top,#1454a0 0%,#081a38 45%,#030916 100%);
+ padding:22px 16px 40px
+}
+main{max-width:650px;margin:auto}
+.glass{
+ background:linear-gradient(135deg,#ffffff18,#7bbcff08);
+ border:1px solid #a9d8ff42;border-radius:25px;
+ padding:20px;box-shadow:0 16px 45px #0005,inset 0 1px #ffffff20;
+ backdrop-filter:blur(22px);margin-bottom:16px
+}
+header{display:flex;align-items:center;gap:13px}
+.logo{
+ width:50px;height:50px;border-radius:17px;
+ display:grid;place-items:center;font-size:25px;
+ background:linear-gradient(145deg,#55caff,#1454bd);
+ box-shadow:0 0 28px #29aaff55
+}
+h1{font-size:25px;margin:0;letter-spacing:1px}
+.sub{font-size:11px;color:#8edaff;letter-spacing:2px;margin-top:5px}
+.status{margin-left:auto;font-size:10px;color:#70ffc0}
+h2{font-size:17px;margin:0 0 15px}
+.scan{
+ text-align:center;padding:28px 10px;
+ border-radius:20px;background:#06172e88;
+ border:1px solid #55bfff35
+}
+.ring{
+ width:100px;height:100px;margin:0 auto 18px;
+ display:grid;place-items:center;border-radius:50%;
+ border:2px solid #4ccaff;box-shadow:0 0 30px #168fff55;
+ animation:pulse 2s infinite
+}
+.ring span{font-size:38px}
+@keyframes pulse{50%{box-shadow:0 0 38px #168fffaa;transform:scale(1.04)}}
+button,input,select{
+ font:inherit;color:white;border:1px solid #76caff55;
+ background:#123b68;border-radius:13px;padding:12px
+}
+button{cursor:pointer}
+button:active{transform:scale(.98)}
+.primary{background:linear-gradient(110deg,#168fff,#625dff);border:0;font-weight:700}
+.wide{width:100%;margin-top:12px}
+.muted{color:#a8c9e8;font-size:13px;line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px}
+.stat{background:#0b2342aa;border-radius:16px;padding:13px 9px}
+.stat small{display:block;color:#9cc9f2;font-size:10px;margin-bottom:8px}
+.stat strong{font-size:19px}
+.profile-head{display:flex;gap:13px;align-items:center}
+.avatar{
+ width:62px;height:62px;border-radius:19px;
+ display:grid;place-items:center;font-size:29px;
+ background:linear-gradient(135deg,#147fe5,#61d5ff)
+}
+.profile-head h2{font-size:21px;margin:0 0 7px}
+.tag{font-size:11px;color:#83dbff}
+.field{display:grid;gap:7px;margin:12px 0}
+.field label{font-size:12px;color:#b4d7fa}
+.field input,.field select{width:100%}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+hr{border:0;border-top:1px solid #b6dcff20;margin:19px 0}
+.hidden{display:none!important}
+footer{text-align:center;color:#7298c2;font-size:11px;padding:12px}
+</style>
+</head>
+<body>
+<main>
+<section class="glass">
+<header>
+<div class="logo">⌁</div>
+<div><h1>TOF SCAN</h1><div class="sub">LASER TAG IDENTITY</div></div>
+<div class="status">● SYSTEM READY</div>
+</header>
+</section>
+
+<section class="glass scan">
+<div class="ring"><span>⌁</span></div>
+<h2 id="scanTitle">Bereit für den Scan</h2>
+<p class="muted" id="scanText">Wähle einen Spieler oder öffne einen persönlichen ID-Link.</p>
+<button class="primary wide" onclick="demoScan()">DEMO-SCAN STARTEN</button>
+</section>
+
+<section class="glass hidden" id="profile">
+<div class="profile-head">
+<div class="avatar">⚡</div>
+<div>
+<h2 id="pName">Spieler</h2>
+<div class="tag" id="pId">TOF-001</div>
+<div class="tag" id="pRank">RANG · ROOKIE</div>
+</div>
+</div>
+<div class="stats">
+<div class="stat"><small>LEVEL</small><strong id="pLevel">01</strong></div>
+<div class="stat"><small>PUNKTE</small><strong id="pPoints">0</strong></div>
+<div class="stat"><small>SCANS</small><strong id="pScans">0</strong></div>
+</div>
+<div class="actions" style="margin-top:14px">
+<button onclick="changePoints(100)">＋ 100 Punkte</button>
+<button onclick="changePoints(-100)">− 100 Punkte</button>
+</div>
+</section>
+
+<section class="glass">
+<h2>Spieler auswählen</h2>
+<div class="field">
+<label>Spielerprofil</label>
+<select id="playerSelect" onchange="selectPlayer()"></select>
+</div>
+<div class="actions">
+<button onclick="changePlayer(-1)">← Zurück</button>
+<button onclick="changePlayer(1)">Weiter →</button>
+</div>
+<hr>
+<h2>Neuen Spieler erstellen</h2>
+<div class="field"><label>Spielername</label><input id="newName" placeholder="z. B. TOF"></div>
+<div class="field"><label>Karten-ID</label><input id="newId" placeholder="z. B. TOF-004"></div>
+<div class="field">
+<label>Rang</label>
+<select id="newRank">
+<option>ROOKIE</option><option>PLAYER</option><option>PRO</option><option>ELITE</option><option>LEGEND</option>
+</select>
+</div>
+<button class="primary wide" onclick="addPlayer()">＋ SPIELER ERSTELLEN</button>
+<p class="muted">Beispielprofile und Punktestände werden in diesem Browser gespeichert.</p>
+</section>
+<footer>TOF SCAN · PLAYER SYSTEM · DEMO</footer>
+</main>
+
+<script>
+const starter=[
+ {id:"TOF-001",name:"TOF",rank:"ELITE",points:1250,scans:0},
+ {id:"TOF-002",name:"PLAYER 02",rank:"PRO",points:800,scans:0},
+ {id:"TOF-003",name:"PLAYER 03",rank:"ROOKIE",points:250,scans:0}
+];
+let players;
+try{
+ players=JSON.parse(localStorage.getItem("tofPlayers"))||starter;
+}catch(e){players=starter}
+let current=0;
+function save(){
+ try{localStorage.setItem("tofPlayers",JSON.stringify(players))}catch(e){}
+}
+function renderOptions(){
+ const s=document.getElementById("playerSelect");
+ s.innerHTML="";
+ players.forEach((p,i)=>{
+  const o=document.createElement("option");
+  o.value=i;o.textContent=p.id+" · "+p.name;s.appendChild(o)
+ });
+ s.value=current;
+}
+function render(){
+ if(!players.length)return;
+ current=Math.max(0,Math.min(current,players.length-1));
+ const p=players[current];
+ document.getElementById("playerSelect").value=current;
+ document.getElementById("pName").textContent=p.name;
+ document.getElementById("pId").textContent=p.id;
+ document.getElementById("pRank").textContent="RANG · "+p.rank;
+ document.getElementById("pLevel").textContent=String(Math.floor(p.points/500)+1).padStart(2,"0");
+ document.getElementById("pPoints").textContent=p.points.toLocaleString("de-DE");
+ document.getElementById("pScans").textContent=p.scans;
+}
+function selectPlayer(){
+ current=Number(document.getElementById("playerSelect").value);
+}
+function changePlayer(d){
+ current=(current+d+players.length)%players.length;
+ renderOptions();render()
+}
+function showProfile(){
+ const p=players[current];
+ p.scans++;
+ document.getElementById("profile").classList.remove("hidden");
+ document.getElementById("scanTitle").textContent="SPIELER ERKANNT";
+ document.getElementById("scanText").textContent=p.name+" · "+p.id;
+ render();save()
+}
+function demoScan(){showProfile()}
+function changePoints(n){
+ players[current].points=Math.max(0,players[current].points+n);
+ render();save()
+}
+function addPlayer(){
+ const name=document.getElementById("newName").value.trim();
+ const id=document.getElementById("newId").value.trim().toUpperCase();
+ if(!name||!id){alert("Bitte Name und Karten-ID eingeben.");return}
+ if(players.some(p=>p.id===id)){alert("Diese ID existiert bereits.");return}
+ players.push({id,name,rank:document.getElementById("newRank").value,points:0,scans:0});
+ current=players.length-1;save();renderOptions();render();
+ document.getElementById("profile").classList.remove("hidden");
+ document.getElementById("newName").value="";
+ document.getElementById("newId").value="";
+}
+renderOptions();
+const params=new URLSearchParams(location.search);
+const requested=params.get("id");
+if(requested){
+ const found=players.findIndex(p=>p.id.toLowerCase()===requested.toLowerCase());
+ if(found>=0){current=found;renderOptions();showProfile()}
+ else{
+ document.getElementById("scanTitle").textContent="KARTE UNBEKANNT";
+ document.getElementById("scanText").textContent="ID "+requested+" ist nicht registriert.";
+ }
+}
+render();
+</script>
+</body>
+</html>
